@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 var GuestInteractionSchema = new mongoose.Schema({
-  _id: String,
+  _id: {type: String, unique: true},
   guestuserCreated: {
     type: Date, default: Date.now()
   },

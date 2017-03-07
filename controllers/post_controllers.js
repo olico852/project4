@@ -291,7 +291,9 @@ function areYouANewVisitor (test) {
         _id: test,
         guestuserPageViewCount: 1
       }, function (err, newGuest) {
-        if (err) console.log('error creating newGuest entry')
+        if (err) {
+        console.log('cookie exists')
+        res.redirect('')}
         else { console.log('guest entry created') }
       })
     } else {
