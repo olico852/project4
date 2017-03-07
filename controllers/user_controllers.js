@@ -4,7 +4,8 @@ const User = require('../models/user_model')
 const passport = require('../config/ppConfig')
 const flash = require('connect-flash')
 const Post = require('../models/post_model')
-const Interaction = require('../models/interaction_model')
+const GuestInteraction = require('../models/guestinteraction_model')
+const UserInteraction = require('../models/userinteraction_model')
 
 router.get('/signup', function (req, res) {
   res.render('auth/signup')
@@ -32,17 +33,22 @@ router.post('/signup', function (req, res) {
         role: req.body.role
       }, function (err, createdUser) {
         if (err) {
+          console.log('user doc creation error ', err)
           req.flash('error', 'Sign-up email addresses must be unique. Please try again.')
-          console.log('the error is ', err)
           res.redirect('back')
         } else {
           console.log('user is now created...proceeding to save change interaction status')
-          Interaction.findOneAndUpdate({_id: req.cookies.guestid},
-            {guestuserRegistered: true
+          GuestInteraction.findOneAndUpdate({_id: req.cookies.guestid},
+            { guestuserRegistered: true
             }, function (err, results) {
               if (err) console.log('error updating guestuser conversion status')
-              else console.log('guest conversion status update successful')
+              else console.log('guest conversion status update successful', results)
             })
+          UserInteraction.create({
+            _id: createdUser._id,
+            guestid: createdUser.guestid,
+            userPageViewCount: 1
+          })
           req.flash('success', 'Account has been created. Please log in')
           res.redirect('/auth/login')
         }

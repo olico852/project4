@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-var InteractionSchema = new mongoose.Schema({
+var GuestInteractionSchema = new mongoose.Schema({
   _id: String,
   guestuserCreated: {
     type: Date, default: Date.now()
@@ -10,4 +10,4 @@ var InteractionSchema = new mongoose.Schema({
   guestuserRegistered: {type: Boolean, default: false}
 })
 
-module.exports = mongoose.model('Interaction', InteractionSchema)
+module.exports = mongoose.model('GuestInteraction', GuestInteractionSchema)

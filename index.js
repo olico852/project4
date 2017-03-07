@@ -8,7 +8,7 @@ const bodyParser = require('body-parser') // parsing relevant data
 // const Comment = require('./models/comment_model')
 // const Post = require('./models/post_model') // MongoDB schema...
 // const User = require('./models/user_model')
-// const Interaction = require('./models/interaction_model')
+// const GuestInteraction = require('./models/guestinteraction_model')
 // const requestify = require('requestify')
 // const http = require('http')
 const cors = require('cors')
@@ -59,20 +59,21 @@ app.use(bodyParser.json()) //
 app.use(bodyParser.urlencoded({extended: true})) // if using CURL, should be app.use(bodyParser.json()) OR need to change the content-type ecause we're getting data objects rather URLencoded
 app.use(require('morgan')('dev'))
 
-// app.get('/', (req, res) => {
-//   res.render('index')
-// })
+app.get('/about', (req, res) => {
+  res.render('aboutwddit')
+})
 
 app.use('/auth', require('./controllers/user_controllers'))
 
 app.get('/post/search', require('./controllers/post_controllers'))
+app.use('/post', require('./controllers/comment_controllers'))
 
 /* see if it's possible to access per user posts for anon users*/
 // app.get('/user/:userid', require('./controllers/post_controllers'))
 
 app.use('/user', require('./controllers/post_controllers'))
-app.use('/post', require('./controllers/post_controllers'))
-app.use('/', require('./controllers/post_controllers'))
+
+app.get('/', require('./controllers/post_controllers'))
 
 app.use(isLoggedIn) // anything after this will need to be logged in.
 
