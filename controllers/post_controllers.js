@@ -272,7 +272,8 @@ router.get('/', function (req, res) {
       requestify.get('https://content.guardianapis.com/search?api-key=88411b5f-1d1f-4d12-a9be-be1dae164e01&format=json&section=technology&lang=en&page-size=5&order-by=newest')
         .then(function (response) {
           newsData = response.getBody()
-          res.render('post/articleview', { articles: posts, news: newsData.response.results })
+          timeNow = Date.now()
+          res.render('post/articleview', { articles: posts, news: newsData.response.results, timeNow: timeNow })
         }).fail(function (response) {
           response.getCode()
           res.render('post/articleview', {articles: posts})
