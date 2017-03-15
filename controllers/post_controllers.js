@@ -49,7 +49,7 @@ router.get('/post/search', (req, res) => {
               if (err) console.log('error updating guest user data')
               else console.log('guest data update successful')
             })
-          } else {
+          } else if (results.guestuserRegistered === true) {
             UserInteraction.findOneAndUpdate({guestid: req.cookies.guestid},
               { $inc: {userPageViewCount: +1},
                 $push: {userSearchterm: req.query.words}
@@ -273,6 +273,7 @@ router.get('/', function (req, res) {
         .then(function (response) {
           newsData = response.getBody()
           timeNow = Date.now()
+          console.log('timestamp now is ...', timeNow);
           res.render('post/articleview', { articles: posts, news: newsData.response.results, timeNow: timeNow })
         }).fail(function (response) {
           response.getCode()

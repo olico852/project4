@@ -2,7 +2,7 @@ module.exports = function (req, res, next) {
   var cookie = req.cookies.guestid
   // console.log('req cookies contains: ', req.cookies.guestid)
   if (cookie === undefined) {
-    var newId = randomstring(6)
+    var newId = randomstring(20)
     // console.log('guest Id is ', newId)
     res.cookie('guestid', newId, {maxAge: 900000, httpOnly: true})
     // console.log('cookie created successfully')
