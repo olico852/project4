@@ -1,15 +1,15 @@
-<nav class="navbar navbar-inverse">
+<nav role="navigation" class="navbar navbar-inverse">
   <div class="container-fluid">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbarCollapse">
+        <span class="sr-only">Toggle navigation</span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a href="/"><img id="hero" src="/images/wddit-transparent-white-100x100.png" alt="wddit logo"><a class="navbar-brand">Wddit</a></a>
+      <a href="/" class="navbar-brand"><img id="hero" src="/images/wddit-transparent-white-100x100.png" alt="wddit logo">Wddit</a>
     </div>
-    <div class="collapse navbar-collapse" id="myNavbar">
-      <ul class="nav navbar-nav"></ul>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="nav navbar-nav navbar-right">
         <form method="get" action="/post/search" class="navbar-form navbar-left" role="form" name="searchBox">
           <div class="form-group">
