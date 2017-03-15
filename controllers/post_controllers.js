@@ -46,6 +46,7 @@ router.get('/post/search', (req, res) => {
             results.guestuserPageViewCount += 1
             results.guestuserSearchterm.push(req.query.words)
             results.save(function (err, results) {
+              console.log('trigger for guest user ')
               if (err) console.log('error updating guest user data')
               else console.log('guest data update successful')
             })
@@ -54,6 +55,7 @@ router.get('/post/search', (req, res) => {
               { $inc: {userPageViewCount: +1},
                 $push: {userSearchterm: req.query.words}
               }, function (err, results) {
+                console.log('trigger for registered user ')
                 if (err) console.log('error updating user interaction data')
                 else console.log('user interaction data update successful')
               }
