@@ -23,7 +23,7 @@ function userVerification (reqID, userID) {
 
 /* search through post title, article text and tags with keywords */
 router.get('/post/search', (req, res) => {
-  Post.find({'$text': { '$search': req.query.words }}, { score: { $meta: 'textScore' } })
+  Post.find({'$text': { '$search': req.query.words } }, { score: { $meta: 'textScore' } })
   .sort({ score: { $meta: 'textScore' } })
   .populate('user')
   .exec(function (err, results) {
@@ -31,40 +31,39 @@ router.get('/post/search', (req, res) => {
       req.flash('error', 'error loading homepage...')
       res.redirect('back')
     } else {
-      UserInteraction.findOne({guestid: req.cookies.guestid}, function (err, userresults) {
-        if (err) console.log('error updating user interaction data')
-        else if (userresults === null) {
-          GuestInteraction.findById({_id: req.cookies.guestid}, function (err, guestresults) {
-            if (err) console.log('trouble accessing GuestInteraction model')
-            if (guestresults === null) {
-              GuestInteraction.create({
-                _id: req.cookies.guestid,
-                guestuserPageViewCount: 1
-              }, function (err, newGuest) {
-                if (err) console.log('error creating newGuest entry')
-                else { console.log('guest entry created') }
-              })
-            } else {
-              results.guestuserPageViewCount += 1
-              results.guestuserSearchterm.push(req.query.words)
-              results.save(function (err, results) {
-                console.log('trigger for guest user ')
-                if (err) console.log('error updating guest user data')
-                else console.log('guest data update successful')
-              })
-            }
+      GuestInteraction.findById({_id: req.cookies.guestid}, function (err, results) {
+        if (err) console.log('trouble accessing GuestInteraction model')
+        if (results === null) {
+          GuestInteraction.create({
+            _id: req.cookies.guestid,
+            guestuserPageViewCount: 1
+          }, function (err, newGuest) {
+            if (err) console.log('error creating newGuest entry')
+            else { console.log('guest entry created') }
           })
         } else {
-          userresults.userPageViewCount += 1
-          userresults.userSearchterm.push(req.query.words)
-          userresults.save(function (err, lala) {
-            console.log('trigger for guest user ')
-            if (err) console.log('error updating user data')
-            else console.log('user data update successful')
-          })
+          if (results.guestuserRegistered === false) {
+            results.guestuserPageViewCount += 1
+            results.guestuserSearchterm.push(req.query.words)
+            results.save(function (err, results) {
+              console.log('trigger for guest user ')
+              if (err) console.log('error updating guest user data')
+              else console.log('guest data update successful')
+            })
+          } else if (results.guestuserRegistered === true) {
+            UserInteraction.findOneAndUpdate({guestid: req.cookies.guestid},
+              { $inc: {userPageViewCount: +1},
+                $push: {userSearchterm: req.query.words}
+              }, function (err, results) {
+                console.log('trigger for registered user ')
+                if (err) console.log('error updating user interaction data')
+                else console.log('user interaction data update successful')
+              }
+            )
+          }
         }
-        res.render('post/searchresult', {articles: results, searchQuery: req.query})
       })
+      res.render('post/searchresult', {articles: results, searchQuery: req.query})
     }
   })
 })
@@ -84,7 +83,6 @@ router.get('/:userid/create', function (req, res) {
     })
   }
 })
-
 
 /* create new post entry */
 router.post('/:userid/create', function (req, res) {
@@ -250,16 +248,16 @@ router.delete('/:userid/delete/:postid', (req, res) => {
 
 /* returns specific user's posts */
 router.get('/:userid', function (req, res) {
-  console.log('Cookies: ', req.cookies)
-  User
-    .findOne({_id: req.params.userid})
-    .populate('posts')
-    .exec(function (err, myarticles) {
-      if (err) return res.status(500).render({errMsg: err})
-      areYouANewVisitor(req.cookies.guestid)
-      console.log('user data contains ', myarticles)
-      res.render('post/singleuserarticleview', {myarticles: myarticles, news: newsData.response.results})
-    })
+console.log('Cookies: ', req.cookies)
+User
+  .findOne({_id: req.params.userid})
+  .populate('posts')
+  .exec(function (err, myarticles) {
+    if (err) return res.status(500).render({errMsg: err})
+    areYouANewVisitor(req.cookies.guestid)
+    console.log('user data contains ', myarticles)
+    res.render('post/singleuserarticleview', {myarticles: myarticles, news: newsData.response.results})
+  })
 })
 
 /* returns all posts */
@@ -271,13 +269,13 @@ router.get('/', function (req, res) {
       req.flash('error', 'error loading homepage...')
       res.status(500)
     } else {
-      console.log('articles contains...', posts)
+      console.log('articles contains...', posts);
       areYouANewVisitor(req.cookies.guestid)
       requestify.get('https://content.guardianapis.com/search?api-key=88411b5f-1d1f-4d12-a9be-be1dae164e01&format=json&section=technology&lang=en&page-size=5&order-by=newest')
         .then(function (response) {
           newsData = response.getBody()
-          var timeNow = Date.now()
-          console.log('timestamp now is ...', timeNow)
+          timeNow = Date.now()
+          console.log('timestamp now is ...', timeNow);
           res.render('post/articleview', { articles: posts, news: newsData.response.results, timeNow: timeNow })
         }).fail(function (response) {
           response.getCode()
@@ -287,93 +285,43 @@ router.get('/', function (req, res) {
   })
 })
 
-// // creates docs of guest interaction
-// function areYouANewVisitor (test) {
-//   GuestInteraction.findById({_id: test}, function (err, results) {
-//     if (err) {
-//       console.log('trouble accessing GuestInteraction model ', err)
-//     } else if (results === null) {
-//       GuestInteraction.create({
-//         _id: test,
-//         guestuserPageViewCount: 1
-//       }, function (err, newGuest) {
-//         if (err) {
-//         console.log('cookie exists')
-//         res.redirect('')
-//       } else {
-//         console.log('guest entry created') }
-//       })
-//     } else {
-//       if (results.guestuserRegistered === false) {
-//         results.guestuserPageViewCount += 1
-//         results.save(function (err, results) {
-//           if (err) console.log('error updating guest user data')
-//           else console.log('guest data update successful')
-//         })
-//       } else {
-//         userPageViewLog(test)
-//       }
-//       }
-//   })
-// }
-//
-// function userPageViewLog(test) {
-//   UserInteraction.findOneAndUpdate({ guestid: test },
-//     { $inc: { userPageViewCount: +1 }
-//     }, function (err, results) {
-//       if (err) console.log('error updating user interaction data')
-//       else console.log('user interaction data update successful')
-//     })
-// }
-
 // creates docs of guest interaction
 function areYouANewVisitor (test) {
-  UserInteraction.find({guestid: test}, function (err, results) {
+  GuestInteraction.findById({_id: test}, function (err, results) {
     if (err) {
-      console.log('too bad got error ', err)
-    } else if (results === null) {
-      GuestInteraction.findById({_id: test}, function (err, results) {
+      console.log('trouble accessing GuestInteraction model ', err)
+      } else if (results === null) {
+      GuestInteraction.create({
+        _id: test,
+        guestuserPageViewCount: 1
+      }, function (err, newGuest) {
         if (err) {
-          console.log('trouble accessing GuestInteraction model ', err)
-        } else if (results === null) {
-          GuestInteraction.create({
-            _id: test,
-            guestuserPageViewCount: 1
-          }, function (err, newGuest) {
-            if (err) {
-              console.log('cookie exists')
-              res.redirect('')
-            } else { console.log('guest entry created') }
-          })
-        } else {
-          if (results.guestuserRegistered === false) {
-            results.guestuserPageViewCount += 1
-            results.save(function (err, results) {
-              if (err) console.log('error updating guest user data')
-              else console.log('guest data update successful')
-            })
-          } else {
-            userPageViewLog(test)
-          }
-        }
+        console.log('cookie exists')
+        res.redirect('')}
+        else { console.log('guest entry created') }
       })
     } else {
-      console.log('is this triggered? ');
-      test = results.guestid
-      userPageViewLog(test)
+      if (results.guestuserRegistered === false) {
+        results.guestuserPageViewCount += 1
+        results.save(function (err, results) {
+          if (err) console.log('error updating guest user data')
+          else console.log('guest data update successful')
+        })
+      } else {
+        userPageViewLog(test)
+      }
     }
   })
 }
 
-function userPageViewLog (test) {
+function userPageViewLog(test) {
   UserInteraction.findOneAndUpdate({guestid: test},
-    { $inc: { userPageViewCount: +1 }
+    {$inc: {userPageViewCount: +1}
     }, function (err, results) {
       if (err) console.log('error updating user interaction data')
       else console.log('user interaction data update successful')
-    })
+  })
 }
-
 
 // function retrieveNews(callback) {
 //   http.get({
