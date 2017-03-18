@@ -128,13 +128,13 @@ function areYouANewVisitor (test) {
   })
 }
 
-function userPageViewLog(test) {
+function userPageViewLog (test) {
   UserInteraction.findOneAndUpdate({guestid: test},
     {$inc: {userPageViewCount: +1}
     }, function (err, results) {
       if (err) console.log('error updating user interaction data')
       else console.log('user interaction data update successful')
-  })
+    })
 }
 
 module.exports = router

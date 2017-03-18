@@ -23,7 +23,7 @@ function userVerification (reqID, userID) {
 
 /* search through post title, article text and tags with keywords */
 router.get('/post/search', (req, res) => {
-  Post.find({'$text': { '$search': req.query.words } }, { score: { $meta: 'textScore' } })
+  Post.find({ '$text': { '$search': req.query.words } }, { score: { $meta: 'textScore' } })
   .sort({ score: { $meta: 'textScore' } })
   .populate('user')
   .exec(function (err, results) {
@@ -133,7 +133,7 @@ router.get('/:userid/editprofile', (req, res) => {
 })
 
 router.put('/:userid/editprofile', (req, res) => {
-  console.log('Cookies: ', req.cookies)
+  // console.log('Cookies: ', req.cookies)
   if (!userVerification(req.params.userid, req.user._id)) {
     req.flash('error', 'Unauthorised')
     res.redirect('/auth/login')
@@ -158,7 +158,7 @@ router.put('/:userid/editprofile', (req, res) => {
 })
 
 router.get('/:userid/edit', function (req, res) {
-  console.log('Cookies: ', req.cookies)
+  // console.log('Cookies: ', req.cookies)
   if (!userVerification(req.params.userid, req.user._id)) {
     req.flash('error', 'Unauthorised')
     res.redirect('/auth/login')
@@ -248,8 +248,8 @@ router.delete('/:userid/delete/:postid', (req, res) => {
 
 /* returns specific user's posts */
 router.get('/:userid', function (req, res) {
-console.log('Cookies: ', req.cookies)
-User
+// console.log('Cookies: ', req.cookies)
+  User
   .findOne({_id: req.params.userid})
   .populate('posts')
   .exec(function (err, myarticles) {
@@ -269,13 +269,13 @@ router.get('/', function (req, res) {
       req.flash('error', 'error loading homepage...')
       res.status(500)
     } else {
-      console.log('articles contains...', posts);
+      // console.log('articles contains...', posts)
       areYouANewVisitor(req.cookies.guestid)
       requestify.get('https://content.guardianapis.com/search?api-key=88411b5f-1d1f-4d12-a9be-be1dae164e01&format=json&section=technology&lang=en&page-size=5&order-by=newest')
         .then(function (response) {
           newsData = response.getBody()
-          timeNow = Date.now()
-          console.log('timestamp now is ...', timeNow);
+          var timeNow = Date.now()
+          // console.log('timestamp now is ...', timeNow)
           res.render('post/articleview', { articles: posts, news: newsData.response.results, timeNow: timeNow })
         }).fail(function (response) {
           response.getCode()
@@ -289,16 +289,16 @@ router.get('/', function (req, res) {
 function areYouANewVisitor (test) {
   GuestInteraction.findById({_id: test}, function (err, results) {
     if (err) {
-      console.log('trouble accessing GuestInteraction model ', err)
-      } else if (results === null) {
+      // console.log('trouble accessing GuestInteraction model ', err)
+    } else if (results === null) {
       GuestInteraction.create({
         _id: test,
         guestuserPageViewCount: 1
       }, function (err, newGuest) {
         if (err) {
-        console.log('cookie exists')
-        res.redirect('')}
-        else { console.log('guest entry created') }
+        // console.log('cookie exists')
+        res.redirect('/')
+        } else { console.log('guest entry created') }
       })
     } else {
       if (results.guestuserRegistered === false) {
@@ -314,13 +314,13 @@ function areYouANewVisitor (test) {
   })
 }
 
-function userPageViewLog(test) {
+function userPageViewLog (test) {
   UserInteraction.findOneAndUpdate({guestid: test},
     {$inc: {userPageViewCount: +1}
     }, function (err, results) {
       if (err) console.log('error updating user interaction data')
       else console.log('user interaction data update successful')
-  })
+    })
 }
 
 // function retrieveNews(callback) {

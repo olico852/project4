@@ -2,27 +2,26 @@
   <div class="container-fluid">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="sr-only">Toggle navigation</span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a href="/"><img id="hero" src="/images/wddit-transparent-white-100x100.png" alt="wddit logo"><a class="navbar-brand">Wddit</a></a>
+      <a href="/" class="navbar-brand"><img id="hero" src="/images/wddit-transparent-white-100x100.png" alt="wddit logo">Wddit</a>
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
-      <ul class="nav navbar-nav">
+      <ul class="nav navbar-nav navbar-right">
+        <form method="get" action="/post/search" class="navbar-form navbar-left" role="form">
+          <div class="form-group">
+            <input type="text" class="form-control" placeholder="Post search" name="words">
+          </div>
+          <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+        </form>
         <li class="active"><a href="/user">Home</a></li>
         <li><a href=<%="/user/"+ currentUser._id +"/create"%>>Create Post</a></li>
         <li><a href=<%="/user/"+ currentUser._id + "/edit"%>>Edit Posts</a></li>
         <li><a href=<%="/user/"+ currentUser._id +"/comments"%>>Your Comments</a></li>
         <li><a href=<%="/user/"+ currentUser._id +"/editprofile"%>>Edit Profile</a></li>
-      </ul>
-      <form method="get" action="/post/search" class="navbar-form navbar-left" role="form">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Post search" name="words">
-        </div>
-        <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
-      </form>
-      <ul class="nav navbar-nav navbar-right">
         <li><a href="/auth/logout"><span class="glyphicon glyphicon-log-in"></span>Logout</a></li>
       </ul>
     </div>
